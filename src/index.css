@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+@import 'tailwindcss';
+
+/* ── RIACS Health — Brand Design Tokens ─────────────────────────────────────
+   Extracted from production site inspection:
+     bg:      #242525  (rgb 36,37,37)
+     surface: #2e2f2f
+     border:  #776f62  (rgb 119,111,98)
+     text:    #e5e0d8  (rgb 229,224,216)
+     muted:   #a09890
+     accent:  #7a3e99  (RIACS purple)
+     accent2: #a694c1  (light purple)
+   Color scheme: dark-first
+──────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: dark;
+
+  /* backgrounds */
+  --bg:           #242525;
+  --surface:      #2e2f2f;
+  --surface-2:    #363737;
+  --surface-hover:#3c3d3d;
+
+  /* borders */
+  --border:       #776f62;
+  --border-subtle:#4a4540;
+
+  /* text */
+  --text:         #e5e0d8;
+  --text-muted:   #a09890;
+  --text-faint:   #6e6660;
+
+  /* brand accent */
+  --accent:       #7a3e99;
+  --accent-light: #a694c1;
+  --accent-hover: #683283;
+  --accent-bg:    rgba(122,62,153,0.15);
+
+  /* semantic */
+  --danger:       #ef4444;
+  --danger-bg:    rgba(239,68,68,0.12);
+
+  /* shadows */
+  --shadow-card:  6px 6px 9px rgba(0,0,0,0.35);
+  --shadow-modal: 0 28px 64px rgba(0,0,0,0.55);
+
+  /* radius */
+  --radius-sm:    8px;
+  --radius-md:    12px;
+  --radius-lg:    16px;
+  --radius-xl:    20px;
+  --radius-pill:  9999px;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+* {
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar              { width: 6px; height: 6px; }
+::-webkit-scrollbar-track        { background: var(--bg); }
+::-webkit-scrollbar-thumb        { background: var(--accent); border-radius: var(--radius-pill); }
+::-webkit-scrollbar-thumb:hover  { background: var(--accent-hover); }
+* { scrollbar-color: var(--accent) var(--bg); scrollbar-width: thin; }
+
+/* Animations */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive: table on desktop, cards on mobile */
+.hidden-mobile { display: block; }
+.show-mobile   { display: none;  }
+
+@media (max-width: 640px) {
+  .hidden-mobile { display: none;  }
+  .show-mobile   { display: block; }
+}
+
+/* ── Light Theme ────────────────────────────────────────────────────────── */
+:root.light-theme {
+  color-scheme: light;
+
+  /* backgrounds */
+  --bg:           #ffffff;
+  --surface:      #f5f5f5;
+  --surface-2:    #efefef;
+  --surface-hover:#e8e8e8;
+
+  /* borders */
+  --border:       #e0e0e0;
+  --border-subtle:#f0f0f0;
+
+  /* text */
+  --text:         #1a1a1a;
+  --text-muted:   #666666;
+  --text-faint:   #999999;
+
+  /* brand accent - keeps the same purple */
+  --accent:       #7a3e99;
+  --accent-light: #a694c1;
+  --accent-hover: #683283;
+  --accent-bg:    rgba(122,62,153,0.08);
+
+  /* semantic */
+  --danger:       #ef4444;
+  --danger-bg:    rgba(239,68,68,0.08);
+
+  /* shadows */
+  --shadow-card:  0 2px 8px rgba(0,0,0,0.1);
+  --shadow-modal: 0 10px 40px rgba(0,0,0,0.15);
+}
