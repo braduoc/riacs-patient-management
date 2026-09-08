@@ -68,8 +68,9 @@ export function PatientsPage() {
               src="https://riacs.cl/wp-content/uploads/Logo_RIACS-final-Manuel-Alfaro.svg"
               alt="RIACS Health"
               style={{
-                height: "32px",
+                height: "42px",
                 width: "auto",
+                marginLeft: "5px",
               }}
             />
             
