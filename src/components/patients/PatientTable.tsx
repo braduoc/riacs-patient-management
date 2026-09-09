@@ -1,28 +1,69 @@
-import type { Patient } from "../types/patient";
-import { formatDate, calcAge } from "../services/patient.service";
-import { IcoChevL, IcoChevR, IcoDel, IcoEdit } from "./ui/icons";
+import { memo } from "react";
+import type { Patient } from "../../types/patient";
+import { formatDate, calcAge } from "../../utils/date.utils";
+import { IcoChevL, IcoChevR, IcoDel, IcoEdit } from "../ui/icons";
+import styles from "./PatientTable.module.css";
 
 interface PatientTableProps {
   rows: Patient[];
   page: number;
+  pageSize: number;
   totalPages: number;
+  totalRecords: number;
   onPageChange: (page: number) => void;
   onEdit: (patient: Patient) => void;
   onDelete: (patient: Patient) => void;
-  filtered: Patient[];
 }
 
-const PAGE_SIZE = 6;
+// Botón de número de página memorizado
+const PageButton = memo(
+  ({
+    n,
+    active,
+    onClick,
+  }: {
+    n: number;
+    active: boolean;
+    onClick: (page: number) => void;
+  }) => (
+    <button
+      onClick={() => !active && onClick(n)}
+      disabled={active}
+      style={{
+        background: active ? "var(--accent)" : "var(--surface-2)",
+        color: active ? "#fff" : "var(--text)",
+        border: `1px solid ${
+          active ? "var(--accent)" : "var(--border-subtle)"
+        }`,
+        borderRadius: "var(--radius-sm)",
+        width: 32,
+        height: 32,
+        cursor: active ? "default" : "pointer",
+        fontWeight: active ? 700 : 400,
+        fontSize: 14,
+      }}
+    >
+      {n}
+    </button>
+  )
+);
+
+PageButton.displayName = "PageButton";
 
 export function PatientTable({
   rows,
   page,
+  pageSize,
   totalPages,
+  totalRecords,
   onPageChange,
   onEdit,
   onDelete,
-  filtered,
 }: PatientTableProps) {
+  // Cálculo de rangos dinámico basado en los datos del servidor
+  const startItem = totalRecords === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endItem = Math.min(page * pageSize, totalRecords);
+
   return (
     <>
       {/* ── Desktop table ── */}
@@ -82,21 +123,12 @@ export function PatientTable({
             {rows.map((p) => (
               <tr
                 key={p.id}
-                style={{
-                  borderBottom: "1px solid var(--border-subtle)",
-                  transition: "background 0.12s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "var(--surface-hover)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                }}
+                className={styles.row}
               >
                 <td style={{ padding: "13px 16px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ fontWeight: 600 }}>
-                      {p.nombre} {p.apellido}
+                      {p.firstName} {p.lastName}
                     </span>
                   </div>
                 </td>
@@ -111,9 +143,9 @@ export function PatientTable({
                   {p.rut}
                 </td>
                 <td style={{ padding: "13px 16px", whiteSpace: "nowrap" }}>
-                  <div style={{ fontSize: 13 }}>{formatDate(p.fechaNacimiento)}</div>
+                  <div style={{ fontSize: 13 }}>{formatDate(p.birthDate)}</div>
                   <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                    {calcAge(p.fechaNacimiento)} años
+                    {calcAge(p.birthDate)} años
                   </div>
                 </td>
                 <td
@@ -132,59 +164,21 @@ export function PatientTable({
                     fontSize: 13,
                   }}
                 >
-                  {p.telefono}
+                  {p.phone}
                 </td>
                 <td style={{ padding: "13px 16px" }}>
                   <div style={{ display: "flex", gap: 6 }}>
                     <button
                       onClick={() => onEdit(p)}
                       title="Editar"
-                      style={{
-                        background: "var(--accent-bg)",
-                        color: "var(--accent-light)",
-                        border: "1px solid var(--border-subtle)",
-                        borderRadius: "var(--radius-sm)",
-                        width: 32,
-                        height: 32,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "background 0.12s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          "rgba(122,62,153,0.28)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "var(--accent-bg)";
-                      }}
+                      className={`${styles.iconBtn} ${styles.iconBtnEdit}`}
                     >
                       <IcoEdit />
                     </button>
                     <button
                       onClick={() => onDelete(p)}
                       title="Eliminar"
-                      style={{
-                        background: "var(--danger-bg)",
-                        color: "var(--danger)",
-                        border: "1px solid var(--border-subtle)",
-                        borderRadius: "var(--radius-sm)",
-                        width: 32,
-                        height: 32,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "background 0.12s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          "rgba(239,68,68,0.22)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "var(--danger-bg)";
-                      }}
+                      className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
                     >
                       <IcoDel />
                     </button>
@@ -238,7 +232,7 @@ export function PatientTable({
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {p.nombre} {p.apellido}
+                    {p.firstName} {p.lastName}
                   </div>
                   <div
                     style={{
@@ -254,35 +248,15 @@ export function PatientTable({
               <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
                 <button
                   onClick={() => onEdit(p)}
-                  style={{
-                    background: "var(--accent-bg)",
-                    color: "var(--accent-light)",
-                    border: "1px solid var(--border-subtle)",
-                    borderRadius: "var(--radius-sm)",
-                    width: 32,
-                    height: 32,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  title="Editar"
+                  className={`${styles.iconBtn} ${styles.iconBtnEdit}`}
                 >
                   <IcoEdit />
                 </button>
                 <button
                   onClick={() => onDelete(p)}
-                  style={{
-                    background: "var(--danger-bg)",
-                    color: "var(--danger)",
-                    border: "1px solid var(--border-subtle)",
-                    borderRadius: "var(--radius-sm)",
-                    width: 32,
-                    height: 32,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  title="Eliminar"
+                  className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
                 >
                   <IcoDel />
                 </button>
@@ -299,12 +273,11 @@ export function PatientTable({
             >
               <div>
                 <span style={{ color: "var(--text-muted)" }}>Nac: </span>
-                {formatDate(p.fechaNacimiento)} · {calcAge(p.fechaNacimiento)}{" "}
-                años
+                {formatDate(p.birthDate)} · {calcAge(p.birthDate)} años
               </div>
               <div>
                 <span style={{ color: "var(--text-muted)" }}>Tel: </span>
-                {p.telefono}
+                {p.phone}
               </div>
               <div
                 style={{
@@ -322,7 +295,7 @@ export function PatientTable({
         ))}
       </div>
 
-      {/* Pagination */}
+      {/* ── Server Pagination ── */}
       {totalPages > 1 && (
         <div
           style={{
@@ -336,12 +309,11 @@ export function PatientTable({
           }}
         >
           <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
-            {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–
-            {Math.min(page * PAGE_SIZE, filtered.length)} de {filtered.length}
+            {startItem}–{endItem} de {totalRecords}
           </span>
           <div style={{ display: "flex", gap: 6 }}>
             <button
-              onClick={() => onPageChange(Math.max(1, page - 1))}
+              onClick={() => page > 1 && onPageChange(page - 1)}
               disabled={page === 1}
               style={{
                 background: "var(--surface-2)",
@@ -359,29 +331,18 @@ export function PatientTable({
             >
               <IcoChevL />
             </button>
+
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-              <button
+              <PageButton
                 key={n}
-                onClick={() => onPageChange(n)}
-                style={{
-                  background: page === n ? "var(--accent)" : "var(--surface-2)",
-                  color: page === n ? "#fff" : "var(--text)",
-                  border: `1px solid ${
-                    page === n ? "var(--accent)" : "var(--border-subtle)"
-                  }`,
-                  borderRadius: "var(--radius-sm)",
-                  width: 32,
-                  height: 32,
-                  cursor: "pointer",
-                  fontWeight: page === n ? 700 : 400,
-                  fontSize: 14,
-                }}
-              >
-                {n}
-              </button>
+                n={n}
+                active={page === n}
+                onClick={onPageChange}
+              />
             ))}
+
             <button
-              onClick={() => onPageChange(Math.min(totalPages, page + 1))}
+              onClick={() => page < totalPages && onPageChange(page + 1)}
               disabled={page === totalPages}
               style={{
                 background: "var(--surface-2)",

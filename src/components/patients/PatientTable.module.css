@@ -1,0 +1,38 @@
+.row {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.12s;
+}
+
+.row:hover {
+  background: var(--surface-hover);
+}
+
+.iconBtn {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s;
+}
+
+.iconBtnEdit {
+  background: var(--accent-bg);
+  color: var(--accent-light);
+}
+
+.iconBtnEdit:hover {
+  background: rgba(122, 62, 153, 0.28);
+}
+
+.iconBtnDanger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.iconBtnDanger:hover {
+  background: rgba(239, 68, 68, 0.22);
+}

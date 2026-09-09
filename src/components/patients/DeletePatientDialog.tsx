@@ -1,4 +1,4 @@
-import type { Patient } from "../types/patient";
+import type { Patient } from "../../types/patient";
 
 interface DeletePatientDialogProps {
   patient: Patient | null;
@@ -25,6 +25,7 @@ export function DeletePatientDialog({
         alignItems: "center",
         justifyContent: "center",
         padding: 16,
+        overflowY: "auto", // Permite scroll si la pantalla es muy pequeña
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onCancel();
@@ -39,6 +40,10 @@ export function DeletePatientDialog({
           boxShadow: "var(--shadow-modal)",
           border: "1px solid var(--border)",
           padding: "30px 28px 24px",
+          display: "flex", // Centrado interno
+          flexDirection: "column",
+          alignItems: "center", // Centra icono, título y texto
+          textAlign: "center",  // Alinea el texto al centro
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -90,11 +95,11 @@ export function DeletePatientDialog({
         >
           ¿Confirma que desea eliminar a{" "}
           <strong style={{ color: "var(--text)" }}>
-            {patient.nombre} {patient.apellido}
+            {patient.firstName} {patient.lastName}
           </strong>{" "}
           ({patient.rut})? Esta acción no se puede deshacer.
         </p>
-        <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ display: "flex", gap: 10, width: "100%" }}>
           <button
             onClick={onCancel}
             style={{

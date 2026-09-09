@@ -1,36 +1,62 @@
-import { usePatients } from "../hooks/usePatients";
-import { PatientTable } from "../components/PatientTable";
-import { PatientModal } from "../components/PatientModal";
-import { DeletePatientDialog } from "../components/DeletePatientDialog";
+import { useState } from "react";
+import { usePatientsList } from "../hooks/usePatientsList";
+import { usePatientForm } from "../hooks/usePatientForm";
+import { usePatientMutations } from "../hooks/usePatientMutations";
+import type { Patient } from "../types/patient";
+import { PatientTable } from "../components/patients/PatientTable";
+import { PatientModal } from "../components/patients/PatientModal";
+import { DeletePatientDialog } from "../components/patients/DeletePatientDialog";
 import { IcoPlus, IcoSearch } from "../components/ui/icons";
 import { PatientTableSkeleton, PatientCardsSkeleton } from "../components/ui/PatientSkeletons";
 import { Spinner } from "../components/ui/Spinner";
 
 export function PatientsPage() {
-    const {
-        patients,
-        search,
-        setSearch,
-        setPage,
-        modalOpen,
-        setModalOpen,
-        editId,
-        form,
-        errors,
+    const list = usePatientsList();
+    const formState = usePatientForm();
+    const [deleteTarget, setDeleteTarget] = useState<Patient | null>(null);
+    const mutations = usePatientMutations({
+        editId: formState.editId,
+        form: formState.form,
         deleteTarget,
-        setDeleteTarget,
-        filtered,
-        totalPages,
-        safeP,
-        rows,
-        openCreate,
-        openEdit,
+        validateForm: formState.validateForm,
+        closeForm: () => formState.setModalOpen(false),
+        clearDeleteTarget: () => setDeleteTarget(null),
+        resetToFirstPage: () => list.setPage(1),
+        refetch: list.refetch,
+        invalidateCache: list.invalidateCache,
+    });
+    const loadingState = mutations.loadingState === "acting" ? "acting" : list.loadingState;
+    const error = mutations.error || list.error;
+
+    const {
+        search, setSearch, setPage, totalPages, totalRecords, pageSize,
+        safeP, rows, refetch,
+    } = list;
+    const {
+        modalOpen, setModalOpen, editId, form, errors, openCreate, openEdit,
         handleFieldChange,
-        handleSave,
-        handleDelete,
-        loadingState,
-        error,
-    } = usePatients();
+    } = formState;
+    const { handleSave, handleDelete, clearError } = mutations;
+
+    const handleCreate = () => {
+        clearError();
+        openCreate();
+    };
+
+    const handleEdit = (patient: Patient) => {
+        clearError();
+        openEdit(patient);
+    };
+
+    const handleCloseModal = () => {
+        clearError();
+        setModalOpen(false);
+    };
+
+    const handleModalFieldChange = (key: Parameters<typeof handleFieldChange>[0], value: string) => {
+        clearError();
+        handleFieldChange(key, value);
+    };
 
     return (
         <div
@@ -61,7 +87,7 @@ export function PatientsPage() {
                         maxWidth: 1100,
                         margin: "0 auto",
                         padding: "0 20px",
-                        height: 60,
+                        height: 70,
                         display: "flex",
                         alignItems: "center",
                         gap: 12,
@@ -72,7 +98,7 @@ export function PatientsPage() {
                             src="https://riacs.cl/wp-content/uploads/Logo_RIACS-final-Manuel-Alfaro.svg"
                             alt="RIACS Health"
                             style={{
-                                height: "42px",
+                                height: "60px",
                                 width: "auto",
                                 marginLeft: "5px",
                             }}
@@ -116,12 +142,12 @@ export function PatientsPage() {
                                 fontWeight: 700,
                             }}
                         >
-                            {patients.length}
+                            {totalRecords}
                         </span>
                     </div>
                     <button
-                        onClick={openCreate}
-                        disabled={loadingState !== "idle"}
+                        onClick={handleCreate}
+                        disabled={loadingState === "acting"}
                         style={{
                             background: "var(--accent)",
                             color: "#fff",
@@ -130,21 +156,21 @@ export function PatientsPage() {
                             padding: "10px 20px",
                             fontSize: 14,
                             fontWeight: 600,
-                            cursor: loadingState === "idle" ? "pointer" : "not-allowed",
+                            cursor: loadingState !== "acting" ? "pointer" : "not-allowed",
                             display: "flex",
                             alignItems: "center",
                             gap: 7,
                             fontFamily: "'DM Sans',sans-serif",
                             transition: "background 0.15s",
-                            opacity: loadingState === "idle" ? 1 : 0.7,
+                            opacity: loadingState !== "acting" ? 1 : 0.7,
                         }}
                         onMouseEnter={(e) => {
-                            if (loadingState === "idle") {
+                            if (loadingState !== "acting") {
                                 e.currentTarget.style.background = "var(--accent-hover)";
                             }
                         }}
                         onMouseLeave={(e) => {
-                            if (loadingState === "idle") {
+                            if (loadingState !== "acting") {
                                 e.currentTarget.style.background = "var(--accent)";
                             }
                         }}
@@ -231,7 +257,7 @@ export function PatientsPage() {
                                 {error || "Error al cargar los pacientes"}
                             </div>
                             <button
-                                onClick={() => window.location.reload()}
+                                onClick={refetch}
                                 style={{
                                     marginTop: 16,
                                     background: "var(--accent)",
@@ -257,15 +283,16 @@ export function PatientsPage() {
                         </div>
                     )}
 
-                    {loadingState === "idle" && (
+                    {loadingState !== "loading" && loadingState !== "error" && (
                         <PatientTable
                             rows={rows}
                             page={safeP}
+                            pageSize={pageSize}
                             totalPages={totalPages}
+                            totalRecords={totalRecords}
                             onPageChange={setPage}
-                            onEdit={openEdit}
+                            onEdit={handleEdit}
                             onDelete={setDeleteTarget}
-                            filtered={filtered}
                         />
                     )}
                 </div>
@@ -277,8 +304,9 @@ export function PatientsPage() {
                 isEditing={editId !== null}
                 form={form}
                 errors={errors}
-                onClose={() => setModalOpen(false)}
-                onFieldChange={handleFieldChange}
+                error={error}
+                onClose={handleCloseModal}
+                onFieldChange={handleModalFieldChange}
                 onSave={handleSave}
             />
 

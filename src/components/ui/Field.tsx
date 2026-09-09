@@ -1,4 +1,4 @@
-import type { FormData } from "../types/patient";
+import type { FormData } from "../../types/patient";
 
 export function Field({
   label,
@@ -7,6 +7,9 @@ export function Field({
   placeholder,
   value,
   error,
+  max,
+  maxLength,
+  onBlur,
   onChange,
 }: {
   label: string;
@@ -15,8 +18,17 @@ export function Field({
   placeholder?: string;
   value: string;
   error?: string;
+  max?: string;
+  maxLength?: number;
+  onBlur?: () => void;
   onChange: (k: keyof FormData, v: string) => void;
 }) {
+  // Limpia valores de tipo fecha para asegurar el formato estricto YYYY-MM-DD
+  const formattedValue =
+    type === "date" && typeof value === "string" && value.includes("T")
+      ? value.split("T")[0]
+      : value ?? "";
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
       <label
@@ -32,7 +44,9 @@ export function Field({
       </label>
       <input
         type={type}
-        value={value}
+        value={formattedValue}
+        max={max}
+        maxLength={maxLength}
         placeholder={placeholder}
         onChange={(e) => onChange(name, e.target.value)}
         style={{
@@ -57,6 +71,9 @@ export function Field({
           e.currentTarget.style.borderColor = error
             ? "var(--danger)"
             : "var(--border)";
+          
+          // Ejecuta la función onBlur personalizada si se envió (ej. formatear RUT)
+          if (onBlur) onBlur();
         }}
       />
       {error && (

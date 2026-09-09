@@ -1,12 +1,15 @@
-import type { FormData, FormErrors } from "../types/patient";
-import { Field } from "./PatientForm";
-import { IcoClose } from "./ui/icons";
+import type { FormData, FormErrors } from "../../types/patient";
+import { Field } from "../ui/Field";
+import { IcoClose } from "../ui/icons";
+import { RutValidatorHelper } from "../../utils/rutValidator";
+import { PhoneValidatorHelper } from "../../utils/phoneValidator";
 
 interface PatientModalProps {
   isOpen: boolean;
   isEditing: boolean;
   form: FormData;
   errors: FormErrors;
+  error?: string | null;
   onClose: () => void;
   onFieldChange: (key: keyof FormData, value: string) => void;
   onSave: () => void;
@@ -17,11 +20,31 @@ export function PatientModal({
   isEditing,
   form,
   errors,
+  error,
   onClose,
   onFieldChange,
   onSave,
 }: PatientModalProps) {
   if (!isOpen) return null;
+
+  // Límite local para evitar fechas futuras en el selector nativo (YYYY-MM-DD)
+  const today = new Date().toLocaleDateString("sv-SE");
+
+  // Auto-formateo del RUT al perder el foco
+  const handleRutBlur = () => {
+    if (form.rut && form.rut.trim()) {
+      const formattedRut = RutValidatorHelper.format(form.rut);
+      onFieldChange("rut", formattedRut);
+    }
+  };
+
+  // Auto-formateo del Teléfono sin forzar prefijos ni procesar campos vacíos
+  const handlePhoneBlur = () => {
+    if (form.phone && form.phone.trim()) {
+      const formattedPhone = PhoneValidatorHelper.format(form.phone);
+      onFieldChange("phone", formattedPhone);
+    }
+  };
 
   return (
     <div
@@ -108,6 +131,23 @@ export function PatientModal({
           </button>
         </div>
 
+        {error && (
+          <div
+            role="alert"
+            style={{
+              margin: "16px 24px 0",
+              padding: "10px 12px",
+              color: "var(--danger)",
+              background: "var(--danger-bg)",
+              border: "1px solid var(--danger)",
+              borderRadius: "var(--radius-sm)",
+              fontSize: 13,
+            }}
+          >
+            {error}
+          </div>
+        )}
+
         {/* Form */}
         <div
           style={{
@@ -121,18 +161,18 @@ export function PatientModal({
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             <Field
               label="Nombre"
-              name="nombre"
+              name="firstName"
               placeholder="Ej: Valentina"
-              value={form.nombre}
-              error={errors.nombre}
+              value={form.firstName}
+              error={errors.firstName}
               onChange={onFieldChange}
             />
             <Field
               label="Apellido"
-              name="apellido"
+              name="lastName"
               placeholder="Ej: Morales Soto"
-              value={form.apellido}
-              error={errors.apellido}
+              value={form.lastName}
+              error={errors.lastName}
               onChange={onFieldChange}
             />
           </div>
@@ -141,16 +181,19 @@ export function PatientModal({
               label="RUT"
               name="rut"
               placeholder="12.345.678-K"
+              maxLength={12}
               value={form.rut}
               error={errors.rut}
               onChange={onFieldChange}
+              onBlur={handleRutBlur}
             />
             <Field
               label="Fecha de Nacimiento"
-              name="fechaNacimiento"
+              name="birthDate"
               type="date"
-              value={form.fechaNacimiento}
-              error={errors.fechaNacimiento}
+              max={today}
+              value={form.birthDate}
+              error={errors.birthDate}
               onChange={onFieldChange}
             />
           </div>
@@ -165,12 +208,14 @@ export function PatientModal({
           />
           <Field
             label="Teléfono"
-            name="telefono"
+            name="phone"
             type="tel"
-            placeholder="+56 9 XXXX XXXX"
-            value={form.telefono}
-            error={errors.telefono}
+            placeholder="9 XXXX XXXX o +56 9 XXXX XXXX"
+            maxLength={15}
+            value={form.phone}
+            error={errors.phone}
             onChange={onFieldChange}
+            onBlur={handlePhoneBlur}
           />
         </div>
 
@@ -186,6 +231,7 @@ export function PatientModal({
           }}
         >
           <button
+            type="button"
             onClick={onClose}
             style={{
               background: "transparent",
@@ -209,6 +255,7 @@ export function PatientModal({
             Cancelar
           </button>
           <button
+            type="button"
             onClick={onSave}
             style={{
               background: "var(--accent)",
