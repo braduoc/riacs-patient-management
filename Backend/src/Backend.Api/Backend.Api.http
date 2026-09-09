@@ -1,0 +1,48 @@
+@Backend.Api_HostAddress = http://localhost:5130
+
+### Get all patients (paginated)
+GET {{Backend.Api_HostAddress}}/api/patients?pageNumber=1&pageSize=10&search=
+Accept: application/json
+
+### Get patient by ID
+GET {{Backend.Api_HostAddress}}/api/patients/1
+Accept: application/json
+
+### Create new patient
+POST {{Backend.Api_HostAddress}}/api/patients
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "rut": "12345678-K",
+  "birthDate": "1990-01-01",
+  "email": "john@example.com",
+  "phoneNumber": "+56912345678"
+}
+
+### Update patient
+PUT {{Backend.Api_HostAddress}}/api/patients/1
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "rut": "12345678-K",
+  "birthDate": "1990-01-01",
+  "email": "john.smith@example.com",
+  "phoneNumber": "+56912345678"
+}
+
+### Partial update patient
+PATCH {{Backend.Api_HostAddress}}/api/patients/1
+Content-Type: application/json
+
+{
+  "firstName": "Jonathan",
+  "email": "jonathan@example.com"
+}
+
+### Delete patient
+DELETE {{Backend.Api_HostAddress}}/api/patients/1
+
