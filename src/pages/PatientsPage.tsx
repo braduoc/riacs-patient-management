@@ -28,10 +28,7 @@ export function PatientsPage() {
     const loadingState = mutations.loadingState === "acting" ? "acting" : list.loadingState;
     const error = mutations.error || list.error;
 
-    const {
-        search, setSearch, setPage, totalPages, totalRecords, pageSize,
-        safeP, rows, refetch,
-    } = list;
+    const { search, setSearch, setPage, totalPages, totalRecords, pageSize, safeP, rows, refetch, } = list;
     const {
         modalOpen, setModalOpen, editId, form, errors, openCreate, openEdit,
         handleFieldChange,
@@ -98,7 +95,7 @@ export function PatientsPage() {
                             src="https://riacs.cl/wp-content/uploads/Logo_RIACS-final-Manuel-Alfaro.svg"
                             alt="RIACS Health"
                             style={{
-                                height: "60px",
+                                height: "45px",
                                 width: "auto",
                                 marginLeft: "5px",
                             }}
