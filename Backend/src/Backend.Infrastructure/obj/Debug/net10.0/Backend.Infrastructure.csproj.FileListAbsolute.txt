@@ -17,3 +17,4 @@ C:\Users\ASUS\Documents\Pruebas Tecnicas\riacs-patient-management\Backend\src\Ba
 C:\Users\ASUS\Documents\Pruebas Tecnicas\riacs-patient-management\Backend\src\Backend.Infrastructure\obj\Debug\net10.0\ref\Backend.Infrastructure.dll
 C:\Users\ASUS\Documents\Pruebas Tecnicas\riacs-patient-management\Backend\src\Backend.Infrastructure\bin\Debug\net10.0\Backend.Application.dll
 C:\Users\ASUS\Documents\Pruebas Tecnicas\riacs-patient-management\Backend\src\Backend.Infrastructure\bin\Debug\net10.0\Backend.Application.pdb
+C:\Users\ASUS\Documents\Pruebas Tecnicas\riacs-patient-management\Backend\src\Backend.Infrastructure\obj\Debug\net10.0\Backend.Infrastructure.sourcelink.json

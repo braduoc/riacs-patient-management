@@ -9,3 +9,4 @@ C:\Users\ASUS\Documents\Pruebas Tecnicas\riacs-patient-management\Backend\src\Ba
 C:\Users\ASUS\Documents\Pruebas Tecnicas\riacs-patient-management\Backend\src\Backend.Domain\obj\Debug\net10.0\refint\Backend.Domain.dll
 C:\Users\ASUS\Documents\Pruebas Tecnicas\riacs-patient-management\Backend\src\Backend.Domain\obj\Debug\net10.0\Backend.Domain.pdb
 C:\Users\ASUS\Documents\Pruebas Tecnicas\riacs-patient-management\Backend\src\Backend.Domain\obj\Debug\net10.0\ref\Backend.Domain.dll
+C:\Users\ASUS\Documents\Pruebas Tecnicas\riacs-patient-management\Backend\src\Backend.Domain\obj\Debug\net10.0\Backend.Domain.sourcelink.json
