@@ -22,19 +22,27 @@ public sealed class ExceptionHandlingMiddleware
         }
         catch (InvalidRutException exception)
         {
+            _logger.LogWarning(exception, "Invalid RUT while processing {Method} {Path}.", context.Request.Method, context.Request.Path);
             await WriteErrorAsync(context, StatusCodes.Status400BadRequest, exception.Message);
         }
         catch (RutAlreadyExistsException exception)
         {
+            _logger.LogWarning(exception, "Duplicate RUT while processing {Method} {Path}.", context.Request.Method, context.Request.Path);
             await WriteErrorAsync(context, StatusCodes.Status400BadRequest, exception.Message);
         }
         catch (PatientNotFoundException exception)
         {
+            _logger.LogWarning(exception, "Patient not found while processing {Method} {Path}.", context.Request.Method, context.Request.Path);
             await WriteErrorAsync(context, StatusCodes.Status404NotFound, exception.Message);
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Unhandled exception while processing the request.");
+            _logger.LogError(
+                exception,
+                "Unhandled exception while processing {Method} {Path}. Exception: {ExceptionMessage}",
+                context.Request.Method,
+                context.Request.Path,
+                exception.Message);
             await WriteErrorAsync(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
         }
     }

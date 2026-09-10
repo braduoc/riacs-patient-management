@@ -20,6 +20,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.RUT).IsRequired().HasMaxLength(12);
             entity.HasIndex(e => e.RUT).IsUnique(); // RUT must be unique
+            entity.Property(e => e.BirthDate).HasColumnType("date");
             entity.Property(e => e.Email).IsRequired().HasMaxLength(150);
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
         });

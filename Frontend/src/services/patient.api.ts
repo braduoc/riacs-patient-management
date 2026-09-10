@@ -10,7 +10,13 @@ import {
   mapToBackend,
 } from "../mappers/patient.mapper";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_ORIGIN = import.meta.env.VITE_API_URL?.replace(/\/+$/, "");
+
+if (!API_ORIGIN) {
+  throw new Error("La variable de entorno VITE_API_URL no está definida");
+}
+
+const API_BASE_URL = `${API_ORIGIN}/api/patients`;
 
 async function handleResponse<T>(response: Response, fallbackMsg: string): Promise<T> {
   if (!response.ok) {

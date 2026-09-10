@@ -20,8 +20,10 @@ public class CreatePatientDto
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Email format is invalid")]
+    [StringLength(150, ErrorMessage = "Email cannot exceed 150 characters")]
     public string Email { get; set; } = string.Empty;
 
     [Phone(ErrorMessage = "Phone number format is invalid")]
+    [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     public string PhoneNumber { get; set; } = string.Empty;
 }
