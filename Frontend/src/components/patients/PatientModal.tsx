@@ -180,7 +180,7 @@ export function PatientModal({
             <Field
               label="RUT"
               name="rut"
-              placeholder="12.345.678-K"
+              placeholder="12345678-9"
               maxLength={12}
               value={form.rut}
               error={errors.rut}
