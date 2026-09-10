@@ -1,0 +1,10 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "RAILPACK",
+    "buildCommand": "dotnet restore src/Backend.Api/Backend.Api.csproj --force && dotnet publish src/Backend.Api/Backend.Api.csproj --no-restore -c Release -o out"
+  },
+  "deploy": {
+    "startCommand": "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-3000} ./out/Backend.Api"
+  }
+}
