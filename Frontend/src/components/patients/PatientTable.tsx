@@ -50,9 +50,19 @@ const PageButton = memo(
 
 PageButton.displayName = "PageButton";
 
-function getVisiblePages(page: number, totalPages: number): Array<number | "ellipsis-left" | "ellipsis-right"> {
-  if (totalPages <= 7) {
+function getVisiblePages(
+  page: number,
+  totalPages: number,
+  maxVisiblePages: 7 | 3 = 7,
+): Array<number | "ellipsis-left" | "ellipsis-right"> {
+  if (totalPages <= maxVisiblePages) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  if (maxVisiblePages === 3) {
+    if (page === 1) return [1, 2, "ellipsis-right", totalPages];
+    if (page === totalPages) return [1, "ellipsis-left", totalPages - 1, totalPages];
+    return [1, "ellipsis-left", page, "ellipsis-right", totalPages];
   }
 
   if (page <= 4) {
@@ -80,6 +90,34 @@ export function PatientTable({
   const startItem = totalRecords === 0 ? 0 : (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, totalRecords);
   const visiblePages = getVisiblePages(page, totalPages);
+  const mobileVisiblePages = getVisiblePages(page, totalPages, 3);
+
+  const renderPageItems = (items: Array<number | "ellipsis-left" | "ellipsis-right">) =>
+    items.map((item) =>
+      typeof item === "number" ? (
+        <PageButton
+          key={item}
+          n={item}
+          active={page === item}
+          onClick={onPageChange}
+        />
+      ) : (
+        <span
+          key={item}
+          aria-hidden="true"
+          style={{
+            width: 32,
+            height: 32,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--text-muted)",
+          }}
+        >
+          …
+        </span>
+      ),
+    );
 
   return (
     <>
@@ -328,7 +366,7 @@ export function PatientTable({
           <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
             {startItem}–{endItem} de {totalRecords}
           </span>
-          <div style={{ display: "flex", gap: 6 }}>
+          <div className={styles.desktopPagination} style={{ display: "flex", gap: 6 }}>
             <button
               onClick={() => page > 1 && onPageChange(page - 1)}
               disabled={page === 1}
@@ -349,35 +387,54 @@ export function PatientTable({
               <IcoChevL />
             </button>
 
-            {visiblePages.map((item) =>
-              typeof item === "number" ? (
-                <PageButton
-                  key={item}
-                  n={item}
-                  active={page === item}
-                  onClick={onPageChange}
-                />
-              ) : (
-                <span
-                  key={item}
-                  aria-hidden="true"
-                  style={{
-                    width: 32,
-                    height: 32,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  …
-                </span>
-              ),
-            )}
+            {renderPageItems(visiblePages)}
 
             <button
               onClick={() => page < totalPages && onPageChange(page + 1)}
               disabled={page === totalPages}
+              style={{
+                background: "var(--surface-2)",
+                border: "1px solid var(--border-subtle)",
+                borderRadius: "var(--radius-sm)",
+                width: 32,
+                height: 32,
+                cursor: page === totalPages ? "not-allowed" : "pointer",
+                opacity: page === totalPages ? 0.35 : 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--text)",
+              }}
+            >
+              <IcoChevR />
+            </button>
+          </div>
+          <div className={styles.mobilePagination} style={{ display: "flex", gap: 6 }}>
+            <button
+              onClick={() => page > 1 && onPageChange(page - 1)}
+              disabled={page === 1}
+              aria-label="Página anterior"
+              style={{
+                background: "var(--surface-2)",
+                border: "1px solid var(--border-subtle)",
+                borderRadius: "var(--radius-sm)",
+                width: 32,
+                height: 32,
+                cursor: page === 1 ? "not-allowed" : "pointer",
+                opacity: page === 1 ? 0.35 : 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--text)",
+              }}
+            >
+              <IcoChevL />
+            </button>
+            {renderPageItems(mobileVisiblePages)}
+            <button
+              onClick={() => page < totalPages && onPageChange(page + 1)}
+              disabled={page === totalPages}
+              aria-label="Página siguiente"
               style={{
                 background: "var(--surface-2)",
                 border: "1px solid var(--border-subtle)",

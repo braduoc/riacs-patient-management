@@ -36,3 +36,17 @@
 .iconBtnDanger:hover {
   background: rgba(239, 68, 68, 0.22);
 }
+
+.mobilePagination {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  .desktopPagination {
+    display: none !important;
+  }
+
+  .mobilePagination {
+    display: flex !important;
+  }
+}
