@@ -9,8 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. Register services in the container
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 // Configure PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -34,12 +32,6 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // 2. Configure HTTP pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 app.UseCors("AllowAll");
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthorization();
