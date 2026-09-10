@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { useEffect, useState } from "react";
 import type { Patient } from "../../types/patient";
 import { formatDate, calcAge } from "../../utils/date.utils";
 import { IcoChevL, IcoChevR, IcoDel, IcoEdit } from "../ui/icons";
@@ -15,67 +15,6 @@ interface PatientTableProps {
   onDelete: (patient: Patient) => void;
 }
 
-// Botón de número de página memorizado
-const PageButton = memo(
-  ({
-    n,
-    active,
-    onClick,
-  }: {
-    n: number;
-    active: boolean;
-    onClick: (page: number) => void;
-  }) => (
-    <button
-      onClick={() => !active && onClick(n)}
-      disabled={active}
-      style={{
-        background: active ? "var(--accent)" : "var(--surface-2)",
-        color: active ? "#fff" : "var(--text)",
-        border: `1px solid ${
-          active ? "var(--accent)" : "var(--border-subtle)"
-        }`,
-        borderRadius: "var(--radius-sm)",
-        width: 32,
-        height: 32,
-        cursor: active ? "default" : "pointer",
-        fontWeight: active ? 700 : 400,
-        fontSize: 14,
-      }}
-    >
-      {n}
-    </button>
-  )
-);
-
-PageButton.displayName = "PageButton";
-
-function getVisiblePages(
-  page: number,
-  totalPages: number,
-  maxVisiblePages: 7 | 3 = 7,
-): Array<number | "ellipsis-left" | "ellipsis-right"> {
-  if (totalPages <= maxVisiblePages) {
-    return Array.from({ length: totalPages }, (_, index) => index + 1);
-  }
-
-  if (maxVisiblePages === 3) {
-    if (page === 1) return [1, 2, "ellipsis-right", totalPages];
-    if (page === totalPages) return [1, "ellipsis-left", totalPages - 1, totalPages];
-    return [1, "ellipsis-left", page, "ellipsis-right", totalPages];
-  }
-
-  if (page <= 4) {
-    return [1, 2, 3, 4, 5, "ellipsis-right", totalPages];
-  }
-
-  if (page >= totalPages - 3) {
-    return [1, "ellipsis-left", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-  }
-
-  return [1, "ellipsis-left", page - 1, page, page + 1, "ellipsis-right", totalPages];
-}
-
 export function PatientTable({
   rows,
   page,
@@ -86,39 +25,29 @@ export function PatientTable({
   onEdit,
   onDelete,
 }: PatientTableProps) {
+  const [pageInput, setPageInput] = useState(String(page));
+  const [pageError, setPageError] = useState("");
+
+  useEffect(() => {
+    setPageInput(String(page));
+    setPageError("");
+  }, [page]);
+
+  const goToPage = () => {
+    const requestedPage = Number(pageInput);
+
+    if (!Number.isInteger(requestedPage) || requestedPage < 1 || requestedPage > totalPages) {
+      setPageError(`Ingresa un número entre 1 y ${totalPages}.`);
+      return;
+    }
+
+    setPageError("");
+    onPageChange(requestedPage);
+  };
+
   // Cálculo de rangos dinámico basado en los datos del servidor
   const startItem = totalRecords === 0 ? 0 : (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, totalRecords);
-  const visiblePages = getVisiblePages(page, totalPages);
-  const mobileVisiblePages = getVisiblePages(page, totalPages, 3);
-
-  const renderPageItems = (items: Array<number | "ellipsis-left" | "ellipsis-right">) =>
-    items.map((item) =>
-      typeof item === "number" ? (
-        <PageButton
-          key={item}
-          n={item}
-          active={page === item}
-          onClick={onPageChange}
-        />
-      ) : (
-        <span
-          key={item}
-          aria-hidden="true"
-          style={{
-            width: 32,
-            height: 32,
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "var(--text-muted)",
-          }}
-        >
-          …
-        </span>
-      ),
-    );
-
   return (
     <>
       {/* ── Desktop table ── */}
@@ -366,7 +295,7 @@ export function PatientTable({
           <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
             {startItem}–{endItem} de {totalRecords}
           </span>
-          <div className={styles.desktopPagination} style={{ display: "flex", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
             <button
               onClick={() => page > 1 && onPageChange(page - 1)}
               disabled={page === 1}
@@ -387,54 +316,48 @@ export function PatientTable({
               <IcoChevL />
             </button>
 
-            {renderPageItems(visiblePages)}
-
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={pageInput}
+                  onChange={(event) => {
+                    setPageInput(event.target.value);
+                    setPageError("");
+                  }}
+                  onBlur={goToPage}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") goToPage();
+                  }}
+                  aria-label="Ir a página"
+                  aria-invalid={Boolean(pageError)}
+                  style={{
+                    width: 64,
+                    height: 32,
+                    padding: "0 8px",
+                    boxSizing: "border-box",
+                    background: "var(--surface-2)",
+                    color: "var(--text)",
+                    border: `1px solid ${pageError ? "var(--danger)" : "var(--border-subtle)"}`,
+                    borderRadius: "var(--radius-sm)",
+                    textAlign: "center",
+                  }}
+                />
+                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                  de {totalPages}
+                </span>
+              </div>
+              {pageError && (
+                <span role="alert" style={{ color: "var(--danger)", fontSize: 11 }}>
+                  {pageError}
+                </span>
+              )}
+            </div>
             <button
               onClick={() => page < totalPages && onPageChange(page + 1)}
               disabled={page === totalPages}
-              style={{
-                background: "var(--surface-2)",
-                border: "1px solid var(--border-subtle)",
-                borderRadius: "var(--radius-sm)",
-                width: 32,
-                height: 32,
-                cursor: page === totalPages ? "not-allowed" : "pointer",
-                opacity: page === totalPages ? 0.35 : 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--text)",
-              }}
-            >
-              <IcoChevR />
-            </button>
-          </div>
-          <div className={styles.mobilePagination} style={{ display: "flex", gap: 6 }}>
-            <button
-              onClick={() => page > 1 && onPageChange(page - 1)}
-              disabled={page === 1}
-              aria-label="Página anterior"
-              style={{
-                background: "var(--surface-2)",
-                border: "1px solid var(--border-subtle)",
-                borderRadius: "var(--radius-sm)",
-                width: 32,
-                height: 32,
-                cursor: page === 1 ? "not-allowed" : "pointer",
-                opacity: page === 1 ? 0.35 : 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--text)",
-              }}
-            >
-              <IcoChevL />
-            </button>
-            {renderPageItems(mobileVisiblePages)}
-            <button
-              onClick={() => page < totalPages && onPageChange(page + 1)}
-              disabled={page === totalPages}
-              aria-label="Página siguiente"
               style={{
                 background: "var(--surface-2)",
                 border: "1px solid var(--border-subtle)",
