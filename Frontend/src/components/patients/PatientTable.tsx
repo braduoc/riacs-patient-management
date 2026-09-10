@@ -50,6 +50,22 @@ const PageButton = memo(
 
 PageButton.displayName = "PageButton";
 
+function getVisiblePages(page: number, totalPages: number): Array<number | "ellipsis-left" | "ellipsis-right"> {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  if (page <= 4) {
+    return [1, 2, 3, 4, 5, "ellipsis-right", totalPages];
+  }
+
+  if (page >= totalPages - 3) {
+    return [1, "ellipsis-left", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+
+  return [1, "ellipsis-left", page - 1, page, page + 1, "ellipsis-right", totalPages];
+}
+
 export function PatientTable({
   rows,
   page,
@@ -63,6 +79,7 @@ export function PatientTable({
   // Cálculo de rangos dinámico basado en los datos del servidor
   const startItem = totalRecords === 0 ? 0 : (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, totalRecords);
+  const visiblePages = getVisiblePages(page, totalPages);
 
   return (
     <>
@@ -332,14 +349,31 @@ export function PatientTable({
               <IcoChevL />
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-              <PageButton
-                key={n}
-                n={n}
-                active={page === n}
-                onClick={onPageChange}
-              />
-            ))}
+            {visiblePages.map((item) =>
+              typeof item === "number" ? (
+                <PageButton
+                  key={item}
+                  n={item}
+                  active={page === item}
+                  onClick={onPageChange}
+                />
+              ) : (
+                <span
+                  key={item}
+                  aria-hidden="true"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  …
+                </span>
+              ),
+            )}
 
             <button
               onClick={() => page < totalPages && onPageChange(page + 1)}
