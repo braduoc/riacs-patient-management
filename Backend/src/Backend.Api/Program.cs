@@ -22,16 +22,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 
-// Configure CORS - allowed origins come from configuration (env vars or appsettings)
-var allowedOrigins = builder.Configuration
-    .GetSection("Cors:AllowedOrigins")
-    .Get<string[]>() ?? Array.Empty<string>();
-
+// Configure CORS - allow any origin
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -51,9 +47,6 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 
-// Production variables in Railway:
-// ConnectionStrings__DefaultConnection and Cors__AllowedOrigins__0.
-// Configure them in Railway Variables; migrations are applied separately in production.
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
