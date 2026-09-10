@@ -10,10 +10,10 @@ import {
   mapToBackend,
 } from "../mappers/patient.mapper";
 
-const API_ORIGIN = import.meta.env.API_URL?.replace(/\/+$/, "");
+const API_ORIGIN = import.meta.env.BACKEND_API_URL?.replace(/\/+$/, "");
 
 if (!API_ORIGIN) {
-  throw new Error("La variable de entorno API_URL no está definida");
+  throw new Error("La variable de entorno BACKEND_API_URL no está definida");
 }
 
 const API_BASE_URL = `${API_ORIGIN}/api/patients`;
