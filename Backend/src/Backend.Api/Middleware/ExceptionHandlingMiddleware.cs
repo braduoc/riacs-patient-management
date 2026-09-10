@@ -22,28 +22,28 @@ public sealed class ExceptionHandlingMiddleware
         }
         catch (InvalidRutException exception)
         {
-            _logger.LogWarning(exception, "Invalid RUT while processing {Method} {Path}.", context.Request.Method, context.Request.Path);
+            _logger.LogWarning(exception, "RUT inválido al procesar {Method} {Path}.", context.Request.Method, context.Request.Path);
             await WriteErrorAsync(context, StatusCodes.Status400BadRequest, exception.Message);
         }
         catch (RutAlreadyExistsException exception)
         {
-            _logger.LogWarning(exception, "Duplicate RUT while processing {Method} {Path}.", context.Request.Method, context.Request.Path);
+            _logger.LogWarning(exception, "RUT duplicado al procesar {Method} {Path}.", context.Request.Method, context.Request.Path);
             await WriteErrorAsync(context, StatusCodes.Status400BadRequest, exception.Message);
         }
         catch (PatientNotFoundException exception)
         {
-            _logger.LogWarning(exception, "Patient not found while processing {Method} {Path}.", context.Request.Method, context.Request.Path);
+            _logger.LogWarning(exception, "Paciente no encontrado al procesar {Method} {Path}.", context.Request.Method, context.Request.Path);
             await WriteErrorAsync(context, StatusCodes.Status404NotFound, exception.Message);
         }
         catch (Exception exception)
         {
             _logger.LogError(
                 exception,
-                "Unhandled exception while processing {Method} {Path}. Exception: {ExceptionMessage}",
+                "Excepción no controlada al procesar {Method} {Path}. Excepción: {ExceptionMessage}",
                 context.Request.Method,
                 context.Request.Path,
                 exception.Message);
-            await WriteErrorAsync(context, StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            await WriteErrorAsync(context, StatusCodes.Status500InternalServerError, "Ocurrió un error inesperado.");
         }
     }
 

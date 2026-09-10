@@ -22,12 +22,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 
-// Configure CORS - allow any origin
+// Configure CORS - allow specific origins (Vercel deployment + local React dev)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(
+                "https://braduoc-riacs-patient-management.vercel.app",
+                "http://localhost:3000",
+                "http://localhost:5173" 
+              )
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
